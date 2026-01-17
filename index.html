@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGEX TESTER</title>
+
+<style>
+/* ========== GLOBAL ========== */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0e0e0f;
+    color: #d4d4d4;
+    margin: 0;
+    padding: 20px;
+}
+
+.main-layout {
+    display: flex;
+    gap: 20px;
+    max-width: 1150px;
+    margin: auto;
+}
+
+/* ========== LEFT PANEL ========== */
+.left-panel {
+    flex: 2;
+    background: #1b1b1d;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+}
+
+.title {
+    text-align: center;
+    letter-spacing: 0.18em;
+    color: #4ec9b0;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin: 15px 0 6px;
+    color: #9cdcfe;
+    font-weight: bold;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    background: #2a2a2c;
+    border: 1px solid #3a3a3c;
+    color: #ffffff;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+}
+
+button {
+    background: #0e639c;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1177bb;
+}
+
+/* ========== RESULTS ========== */
+.match-box {
+    background: #141415;
+    padding: 15px;
+    margin-top: 25px;
+    border-left: 4px solid #4ec9b0;
+}
+
+.error {
+    color: #ff6b6b;
+    background: #3a1d1d;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: #2a2a2c;
+    margin: 6px 0;
+    padding: 8px;
+    border-radius: 4px;
+    color: #ce9178;
+    font-family: monospace;
+}
+
+/* ========== RIGHT PANEL ========== */
+.right-panel {
+    flex: 1;
+    background: #202022;
+    padding: 20px;
+    border-radius: 8px;
+    height: fit-content;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.ref-title {
+    color: #9cdcfe;
+    margin-top: 0;
+    text-align: center;
+}
+
+/* ========== QUICK REFERENCE ========== */
+.ref-section {
+    margin-bottom: 18px;
+}
+
+.ref-section h4 {
+    margin: 14px 0 8px;
+    font-size: 0.95em;
+    font-weight: 600;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #333;
+}
+
+.ref-item {
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.ref-token {
+    font-family: monospace;
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+/* Section colors */
+.meta h4 { color: #c586c0; }
+.meta .ref-token { color: #c586c0; }
+
+.classes h4 { color: #4ec9b0; }
+.classes .ref-token { color: #4ec9b0; }
+
+.sets h4 { color: #dcdcaa; }
+.sets .ref-token { color: #dcdcaa; }
+
+.quantifiers h4 { color: #ce9178; }
+.quantifiers .ref-token { color: #ce9178; }
+
+.groups h4 { color: #9cdcfe; }
+.groups .ref-token { color: #9cdcfe; }
+
+.anchors h4 { color: #b5cea8; }
+.anchors .ref-token { color: #b5cea8; }
+
+.lookarounds h4 { color: #f44747; }
+.lookarounds .ref-token { color: #f44747; }
+
+.flags h4 { color: #569cd6; }
+.flags .ref-token { color: #569cd6; }
+
+/* ========== FOOTER ========== */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #777;
+}
+
+footer h6 {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    margin: 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="main-layout">
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+    <h2 class="title">REGEX TESTER</h2>
+
+    <form method="POST">
+        <label>Regular Expression</label>
+        <input type="text" name="regex" value="{{ regex }}" placeholder="e.g. \b[A-Z][a-z]+">
+
+        <label>Test String</label>
+        <textarea name="text" rows="8" placeholder="Enter your text here...">{{ text }}</textarea>
+
+        <button type="submit">IDENTIFY MATCHES</button>
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if matches %}
+    <div class="match-box">
+        <h3 style="margin-top:0;">Matches Found ({{ matches|length }})</h3>
+        <ul>
+            {% for match in matches %}
+                <li>{{ match }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% elif regex and not error %}
+        <p style="margin-top: 20px; color: #888;">No matches found.</p>
+    {% endif %}
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+    <h3 class="ref-title">Quick Reference</h3>
+
+    <div class="ref-section meta">
+        <h4>Metacharacters</h4>
+        <div class="ref-item"><span class="ref-token">.</span>Any character</div>
+        <div class="ref-item"><span class="ref-token">^</span>Start of string</div>
+        <div class="ref-item"><span class="ref-token">$</span>End of string</div>
+        <div class="ref-item"><span class="ref-token">|</span>OR operator</div>
+        <div class="ref-item"><span class="ref-token">\</span>Escape character</div>
+    </div>
+
+    <div class="ref-section classes">
+        <h4>Character Classes</h4>
+        <div class="ref-item"><span class="ref-token">\d</span>Digit</div>
+        <div class="ref-item"><span class="ref-token">\D</span>Non-digit</div>
+        <div class="ref-item"><span class="ref-token">\w</span>Word character</div>
+        <div class="ref-item"><span class="ref-token">\W</span>Non-word</div>
+        <div class="ref-item"><span class="ref-token">\s</span>Whitespace</div>
+        <div class="ref-item"><span class="ref-token">\S</span>Non-whitespace</div>
+    </div>
+
+    <div class="ref-section sets">
+        <h4>Character Sets</h4>
+        <div class="ref-item"><span class="ref-token">[abc]</span>a or b or c</div>
+        <div class="ref-item"><span class="ref-token">[^abc]</span>Not a, b, c</div>
+        <div class="ref-item"><span class="ref-token">[a-z]</span>Lowercase</div>
+        <div class="ref-item"><span class="ref-token">[A-Z]</span>Uppercase</div>
+        <div class="ref-item"><span class="ref-token">[0-9]</span>Digits</div>
+    </div>
+
+    <div class="ref-section quantifiers">
+        <h4>Quantifiers</h4>
+        <div class="ref-item"><span class="ref-token">*</span>0 or more</div>
+        <div class="ref-item"><span class="ref-token">+</span>1 or more</div>
+        <div class="ref-item"><span class="ref-token">?</span>Optional</div>
+        <div class="ref-item"><span class="ref-token">{n}</span>Exactly n</div>
+        <div class="ref-item"><span class="ref-token">{n,}</span>At least n</div>
+        <div class="ref-item"><span class="ref-token">{n,m}</span>Range</div>
+    </div>
+
+    <div class="ref-section groups">
+        <h4>Groups</h4>
+        <div class="ref-item"><span class="ref-token">(abc)</span>Capturing group</div>
+        <div class="ref-item"><span class="ref-token">(?:abc)</span>Non-capturing</div>
+        <div class="ref-item"><span class="ref-token">(?P&lt;name&gt;)</span>Named group</div>
+        <div class="ref-item"><span class="ref-token">\1</span>Backreference</div>
+    </div>
+
+    <div class="ref-section anchors">
+        <h4>Anchors</h4>
+        <div class="ref-item"><span class="ref-token">\b</span>Word boundary</div>
+        <div class="ref-item"><span class="ref-token">\B</span>Not boundary</div>
+    </div>
+
+    <div class="ref-section lookarounds">
+        <h4>Lookarounds</h4>
+        <div class="ref-item"><span class="ref-token">(?=abc)</span>Lookahead</div>
+        <div class="ref-item"><span class="ref-token">(?!abc)</span>Negative lookahead</div>
+        <div class="ref-item"><span class="ref-token">(?&lt;=abc)</span>Lookbehind</div>
+        <div class="ref-item"><span class="ref-token">(?&lt;!abc)</span>Negative lookbehind</div>
+    </div>
+
+    <div class="ref-section flags">
+        <h4>Flags (Python)</h4>
+        <div class="ref-item"><span class="ref-token">i</span>Ignore case</div>
+        <div class="ref-item"><span class="ref-token">m</span>Multiline</div>
+        <div class="ref-item"><span class="ref-token">s</span>Dotall</div>
+        <div class="ref-item"><span class="ref-token">x</span>Verbose</div>
+    </div>
+</div>
+
+</div>
+
+<footer>
+    <h6>Developed by Deepika</h6>
+</footer>
+
+</body>
+</html>
